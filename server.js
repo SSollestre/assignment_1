@@ -6,6 +6,17 @@ app.listen((5000), () => {
     console.log('Server is running on port 5000; http://localhost:5000');
 });
 
+const users = [
+    {
+        username: 'admin',
+        password: '123'
+    },
+    {
+        username: 'user',
+        password: 'pass1'
+    }
+]
+
 app.use(session({
     secret: 'secret key'
 }))
@@ -38,8 +49,11 @@ app.get('/login', (req, res) => {
 app.use(express.urlencoded({ extended: false }))
 
 app.post(('/login'), (req, res) => {
-    if (req.body.username === 'admin' && req.body.password === '123') {
+    if (users.find((user) => user.username === req.body.username && user.password === req.body.password)) {
         req.session.AUTH = true;
+    }
+    else {
+        req.session.AUTH = false;
     }
     res.redirect('/authRoute');
 });

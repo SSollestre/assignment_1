@@ -1,9 +1,15 @@
 const express = require('express');
 const app = express();
+const session = require('express-session');
 
 app.listen((5000), () => {
     console.log('Server is running on port 5000; http://localhost:5000');
 });
+
+app.use(session({
+    secret: 'secret key'
+}))
+
 
 app.get('/', (req, res) => {
     res.send(`<h3>Home</h3>
@@ -28,19 +34,19 @@ app.get('/login', (req, res) => {
 </form>`)
 })
 
-let AUTH = false;
+
 app.use(express.urlencoded({ extended: false }))
 
 app.post(('/login'), (req, res) => {
     if (req.body.username === 'admin' && req.body.password === '123') {
-        AUTH = true;
+        req.session.AUTH = true;
     }
     res.redirect('/authRoute');
 });
 
 const checkAuth = (req, res, next) => {
     console.log("Auth Route")
-    if (AUTH === false) {
+    if (!req.session.AUTH) {
         console.log("Failed auth")
         res.redirect('/authFail');
     }

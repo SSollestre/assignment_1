@@ -6,24 +6,44 @@ app.listen((5000), () => {
 });
 
 app.get('/', (req, res) => {
-    res.send(`<h3>Homepage</h3>
-        <form action="./login/">
+    res.send(`<h3>Home</h3>
+        <form action="./login">
             <input type="submit" value="login" />
         </form>`)
 });
 
+app.get('/authFail', (req, res) => {
+    res.send(`Invalid username / password <br>
+        <form action="./">
+            <input type="submit" value="home" />
+        </form>`)
+})
+
 app.get('/login', (req, res) => {
-    res.send(`<h3>Login</h3>
-<form>
-    <label for="username">Username</label><br>
-    <input type="text" id="username" name="username"><br>
-    <label for="password">Password</label><br>
-    <input type="text" id="password" name="password">
+    res.send(`<h3 style="margin-bottom:2px">Login</h3>
+<form action="/login" method="post">
+    <input type="text" id="username" name="username" placeholder="username"><br>
+    <input type="text" id="password" name="password" placeholder="password"><br>
+    <input type="submit" id="submit" value="login">
 </form>`)
 })
 
+let AUTH = false;
+app.use(express.urlencoded({ extended: false }))
+
+app.post(('/login'), (req, res) => {
+    if (req.body.username === 'admin' && req.body.password === '123') {
+        AUTH = true;
+    }
+    res.redirect('/authRoute');
+});
+
 const checkAuth = (req, res, next) => {
     console.log("Auth Route")
+    if (AUTH === false) {
+        console.log("Failed auth")
+        res.redirect('/authFail');
+    }
     next();
 };
 

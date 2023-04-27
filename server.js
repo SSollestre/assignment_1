@@ -57,7 +57,7 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Sign up page
+// Sign Up Page
 app.get('/signup', (req, res) => {
     res.send(`<h3 style="margin-bottom:2px">Login</h3>
 <form action="/SignUp" method="post">
@@ -67,7 +67,7 @@ app.get('/signup', (req, res) => {
 </form>`)
 });
 
-// Write form data to database
+// // Write form data to database
 app.post('/signup', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -82,52 +82,62 @@ app.post('/signup', (req, res) => {
     newUser.save().then(res.redirect('/'))
 });
 
+// Log In Page
+app.get('/login', (req, res) => {
+    res.send(`<h3 style="margin-bottom:2px">Login</h3>
+<form action="/login" method="post">
+    <input type="text" id="username" name="username" placeholder="username"><br>
+    <input type="text" id="password" name="password" placeholder="password"><br>
+    <input type="submit" id="submit" value="Log In">
+</form>`)
+})
+
+
+// // Find Matching User
+app.post(('/login'), (req, res) => {
+    console.log(req.body.username)
+    console.log(req.body.password)
+    User.find(({ username: req.body.username, password: req.body.password })).exec().then((users) => {
+        console.log(users);
+        if (users.length === 0) {
+            req.session.AUTH = false;
+        } else {
+            req.session.AUTH = true;
+            res.redirect('/authRoute');
+        }
+    })
+
+});
+
+
+app.get('/authFail', (req, res) => {
+    res.send(`Invalid username / password <br>
+        <form action="./">
+            <input type="submit" value="home" />
+        </form>`)
+})
 
 
 
-// app.get('/authFail', (req, res) => {
-//     res.send(`Invalid username / password <br>
-//         <form action="./">
-//             <input type="submit" value="home" />
-//         </form>`)
-// })
 
-// app.get('/login', (req, res) => {
-//     res.send(`<h3 style="margin-bottom:2px">Login</h3>
-// <form action="/login" method="post">
-//     <input type="text" id="username" name="username" placeholder="username"><br>
-//     <input type="text" id="password" name="password" placeholder="password"><br>
-//     <input type="submit" id="submit" value="Log In">
-// </form>`)
-// })
 
-// app.post(('/login'), (req, res) => {
-//     if (users.find((user) => user.username === req.body.username && user.password === req.body.password)) {
-//         req.session.AUTH = true;
-//     }
-//     else {
-//         req.session.AUTH = false;
-//     }
-//     res.redirect('/authRoute');
-// });
+const checkAuth = (req, res, next) => {
+    console.log("Auth Route")
+    if (!req.session.AUTH) {
+        console.log("Failed auth")
+        res.redirect('/authFail');
+    }
+    next();
+};
 
-// const checkAuth = (req, res, next) => {
-//     console.log("Auth Route")
-//     if (!req.session.AUTH) {
-//         console.log("Failed auth")
-//         res.redirect('/authFail');
-//     }
-//     next();
-// };
+app.use(checkAuth)
 
-// app.use(checkAuth)
+app.get('/authRoute', (req, res) => {
+    res.send(`<form action="./Admin">
+    <input type="submit" value="Admin" />
+</form>
 
-// app.get('/authRoute', (req, res) => {
-//     res.send(`<form action="./Admin">
-//     <input type="submit" value="Admin" />
-// </form>
-
-//  <form action="./User">
-//     <input type="submit" value="Login" />
-//  </form>`)
-// });
+ <form action="./User">
+    <input type="submit" value="Login" />
+ </form>`)
+});

@@ -71,8 +71,6 @@ app.get('/signup', (req, res) => {
 app.post('/signup', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    console.log(username);
-    console.log(password);
 
     const newUser = new User({
         username,
@@ -95,21 +93,27 @@ app.get('/login', (req, res) => {
 
 // // Find Matching User
 app.post(('/login'), (req, res) => {
-    console.log(req.body.username)
-    console.log(req.body.password)
     User.find(({ username: req.body.username, password: req.body.password })).exec().then((users) => {
-        console.log(users);
+
         if (users.length === 0) {
             req.session.AUTH = false;
         } else {
             req.session.AUTH = true;
-            res.redirect('/authRoute');
         }
+        res.redirect('/authRoute');
     })
 
 });
 
+// Checks if the user is authenticated.
+const checkAuth = (req, res, next) => {
+    if (!req.session.AUTH) {
+        return res.redirect('/authFail');
+    }
+    next();
+};
 
+// On failed authentication
 app.get('/authFail', (req, res) => {
     res.send(`Invalid username / password <br>
         <form action="./">
@@ -117,27 +121,22 @@ app.get('/authFail', (req, res) => {
         </form>`)
 })
 
-
-
-
-
-const checkAuth = (req, res, next) => {
-    console.log("Auth Route")
-    if (!req.session.AUTH) {
-        console.log("Failed auth")
-        res.redirect('/authFail');
-    }
-    next();
-};
-
+// Auth route only allowed for authenticated users
 app.use(checkAuth)
 
 app.get('/authRoute', (req, res) => {
-    res.send(`<form action="./Admin">
-    <input type="submit" value="Admin" />
-</form>
-
- <form action="./User">
-    <input type="submit" value="Login" />
- </form>`)
+    res.send(`
+    <h3> Authenticated user </h3>
+ <form action="./">
+    <input type="submit" value="Home" />
+ </form>
+  <form action="./signOut" method="post">
+    <input type="submit" value="Sign Out" />
+ </form>
+ `)
 });
+
+app.post('/signOut', (req, res) => {
+    req.session.AUTH = false;
+    res.redirect('./')
+})

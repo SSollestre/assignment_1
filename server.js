@@ -10,6 +10,7 @@ const Schema = mongoose.Schema;
 app.use(session({ secret: 'secret key' }))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
+app.use(express.static(`public`));
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true });
@@ -24,21 +25,12 @@ app.listen((5000), () => {
 });
 
 
-const users = [
-    {
-        username: 'admin',
-        password: '123',
-    },
-    {
-        username: 'user',
-        password: 'pass1',
-    }
-]
-
 // Homepage
 app.get('/', (req, res) => {
-    res.send(`
-    <h3>Home</h3>
+    if (!req.session.AUTH) {
+        console.log("Unauthorized Homepage");
+        res.send(`
+    <h3>Welcome!</h3>
             <form action="./signup">
             <input type="submit" value="Sign Up" />
         </form>
@@ -46,7 +38,22 @@ app.get('/', (req, res) => {
             <input type="submit" value="Log In" />
         </form>
 `)
+    } else {
+        console.log("Authorized Homepage");
+        res.send(`
+    <h3> Welcome, user!</h3>
+        <form action="./authRoute">
+        <input type="submit" value="Members Area" />
+        </form>
+    <form action="./signOut" method="post">
+        <input type="submit" value="Sign Out" />
+    </form>
+    `)
+    }
+
 });
+
+
 
 
 // User Model
@@ -59,12 +66,12 @@ const User = mongoose.model('User', userSchema);
 
 // Sign Up Page
 app.get('/signup', (req, res) => {
-    res.send(`<h3 style="margin-bottom:2px">Login</h3>
-<form action="/SignUp" method="post">
-    <input type="text" id="username" name="username" placeholder="username"><br>
-    <input type="text" id="password" name="password" placeholder="password"><br>
-    <input type="submit" id="submit" value="Sign Up">
-</form>`)
+    res.send(`< h3 style = "margin-bottom:2px" > Login</h3 >
+        <form action="/SignUp" method="post">
+            <input type="text" id="username" name="username" placeholder="username"><br>
+                <input type="text" id="password" name="password" placeholder="password"><br>
+                    <input type="submit" id="submit" value="Sign Up">
+                    </form>`)
 });
 
 // // Write form data to database
@@ -125,15 +132,17 @@ app.get('/authFail', (req, res) => {
 app.use(checkAuth)
 
 app.get('/authRoute', (req, res) => {
+    const imageNumber = Math.floor(Math.random() * 3) + 1;
     res.send(`
-    <h3> Authenticated user </h3>
- <form action="./">
-    <input type="submit" value="Home" />
- </form>
-  <form action="./signOut" method="post">
-    <input type="submit" value="Sign Out" />
- </form>
- `)
+                    <img src="/images/a1img${imageNumber}.png">
+                        <h3> Authenticated user </h3>
+                        <form action="./">
+                            <input type="submit" value="Home" />
+                        </form>
+                        <form action="./signOut" method="post">
+                            <input type="submit" value="Sign Out" />
+                        </form>
+                        `)
 });
 
 app.post('/signOut', (req, res) => {

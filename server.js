@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express();
 const Schema = mongoose.Schema;
 
-app.use(session({ secret: 'secret key' }))
+app.use(session({ secret: process.env.SESSION_KEY }))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
 app.use(express.static(`public`));

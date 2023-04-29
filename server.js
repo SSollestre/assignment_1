@@ -33,7 +33,7 @@ app.use(session({
     secret: process.env.SESSION_KEY,
     store: sessionStore,
     saveUninitialized: false,
-    resave: true,
+    resave: true
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }))
 
@@ -234,6 +234,6 @@ app.get('*', (req, res) => {
 
 
 // Start server
-app.listen((5000), () => {
-    console.log('Server is running on port 5000; http://localhost:5000');
+app.listen((8080), () => {
+    console.log('Server is running on port 8080');
 });

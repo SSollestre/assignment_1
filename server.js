@@ -54,8 +54,6 @@ app.get('/', (req, res) => {
 });
 
 
-
-
 // User Model
 const userSchema = new Schema({
     name: { type: String, required: true },
@@ -138,9 +136,7 @@ app.get('/authFail', (req, res) => {
 })
 
 // Auth route only allowed for authenticated users
-app.use(checkAuth)
-
-app.get('/authRoute', (req, res) => {
+app.get('/authRoute', checkAuth, (req, res) => {
     const imageNumber = Math.floor(Math.random() * 3) + 1;
     res.send(`
                     <img src="/images/a1img${imageNumber}.png">

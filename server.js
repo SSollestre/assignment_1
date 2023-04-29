@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
@@ -10,7 +11,7 @@ require('dotenv').config();
 const app = express();
 const Schema = mongoose.Schema;
 
-app.use(session({ secret: process.env.SESSION_KEY }))
+
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
 app.use(express.static(`public`));
@@ -21,6 +22,20 @@ mongoose.connection.useDb('Assignment1')
 mongoose.connection.once('open', () => {
     console.log("Connected to MongoDB Atlas.")
 })
+
+var sessionStore = MongoStore.create({
+    mongoUrl: uri,
+    cypto: {
+        secret: process.env.SESSION_KEY
+    }
+})
+app.use(session({
+    secret: process.env.SESSION_KEY,
+    store: sessionStore,
+    saveUninitialized: false,
+    resave: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+}))
 
 // The '$ : {}' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
 const nameSchema = Joi.string().regex(/^[a-zA-Z]+$/).required();

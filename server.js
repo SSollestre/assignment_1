@@ -28,9 +28,8 @@ const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;:'",.<>
 // Homepage
 app.get('/', (req, res) => {
     if (!req.session.AUTH) {
-        console.log("Unauthorized Homepage");
         res.send(`
-    <h3>Welcome!</h3>
+    <h3 style="margin-bottom:2px">Welcome!</h3>
             <form style="margin-bottom:2px" action="./signup">
             <input type="submit" value="Sign Up" />
         </form>
@@ -39,9 +38,8 @@ app.get('/', (req, res) => {
         </form>
 `)
     } else {
-        console.log("Authorized Homepage");
         res.send(`
-    <h3> Welcome, ${req.session.USERNAME}!</h3>
+    <h3 style="margin-bottom:2px"> Welcome, ${req.session.USERNAME}!</h3>
         <form style="margin-bottom:2px" action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
@@ -120,7 +118,7 @@ app.get('/invalidFormData', (req, res) => {
 // Log In Page
 app.get('/login', (req, res) => {
     res.send(`
-    <h3 style="margin-bottom:2px">Login</h3>
+    <h3 style="margin-bottom:2px">Log In</h3>
 <form style="margin-bottom:2px" action="/login" method="post">
     <input type="text" id="email" name="email" placeholder="email"><br>
     <input style="margin-bottom:2px" type="text" id="password" name="password" placeholder="password"><br>
@@ -185,15 +183,16 @@ app.get('/authFail', (req, res) => {
 app.get('/authRoute', checkAuth, (req, res) => {
     const imageNumber = Math.floor(Math.random() * 3) + 1;
     res.send(`
-                    <img src="/images/a1img${imageNumber}.png">
-                        <h3> Authenticated user </h3>
-                        <form margin-bottom:2px action="./">
-                            <input type="submit" value="Home" />
-                        </form>
-                        <form margin-bottom:2px action="./signOut" method="post">
-                            <input type="submit" value="Sign Out" />
-                        </form>
-                        `)
+    <h3 style="margin-bottom:2px"> Hello, ${req.session.USERNAME}!</h3>
+    <img style="margin-bottom:2px" src="/images/a1img${imageNumber}.png">
+        
+    <form style="margin-bottom:2px" margin-bottom:2px action="./">
+        <input type="submit" value="Home" />
+    </form>
+    <form style="margin-bottom:2px" margin-bottom:2px action="./signOut" method="post">
+        <input type="submit" value="Sign Out" />
+    </form>
+    `)
 });
 
 app.post('/signOut', (req, res) => {

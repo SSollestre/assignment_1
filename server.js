@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
             <form style="margin-bottom:2px" action="./signup">
             <input type="submit" value="Sign Up" />
         </form>
-        <form action="./login">
+        <form style="margin-bottom:2px" action="./login">
             <input type="submit" value="Log In" />
         </form>
 `)
@@ -42,10 +42,10 @@ app.get('/', (req, res) => {
         console.log("Authorized Homepage");
         res.send(`
     <h3> Welcome, ${req.session.USERNAME}!</h3>
-        <form margin-bottom:2px action="./authRoute">
+        <form style="margin-bottom:2px" action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
-    <form action="./signOut" method="post">
+    <form style="margin-bottom:2px" action="./signOut" method="post">
         <input type="submit" value="Sign Out" />
     </form>
     `)
@@ -66,14 +66,14 @@ const User = mongoose.model('User', userSchema);
 // Sign Up Page
 app.get('/signup', (req, res) => {
     res.send(`
-    <h3 style = "margin-bottom:2px">Sign Up</h3 >
-        <form margin-bottom:2px action="/SignUp" method="post">
+    <h3 style="margin-bottom:2px">Sign Up</h3 >
+        <form style="margin-bottom:2px" action="/SignUp" method="post">
         <input type="text" id="name" name="name" placeholder="name"><br>
         <input type="text" id="email" name="email" placeholder="email"><br>
-        <input type="text" id="password" name="password" placeholder="password"><br>
+        <input style="margin-bottom:2px" type="text" id="password" name="password" placeholder="password"><br>
                     <input type="submit" id="submit" value="Sign Up">
                     </form>
-        <form margin-bottom:2px action="./">
+        <form style="margin-bottom:2px" action="./">
         <input type="submit" value="Home" />
         </form>
                     `)
@@ -121,12 +121,12 @@ app.get('/invalidFormData', (req, res) => {
 app.get('/login', (req, res) => {
     res.send(`
     <h3 style="margin-bottom:2px">Login</h3>
-<form margin-bottom:2px action="/login" method="post">
+<form style="margin-bottom:2px" action="/login" method="post">
     <input type="text" id="email" name="email" placeholder="email"><br>
-    <input type="text" id="password" name="password" placeholder="password"><br>
+    <input style="margin-bottom:2px" type="text" id="password" name="password" placeholder="password"><br>
     <input type="submit" id="submit" value="Log In">
 </form>
-        <form margin-bottom:2px action="./">
+        <form style="margin-bottom:2px" action="./">
         <input type="submit" value="Home" />
         </form>
 `)

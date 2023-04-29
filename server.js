@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const Joi = require('joi');
+const bcrypt = require('bcrypt');
+const saltRounds = 10
 
 require('dotenv').config();
 
@@ -78,10 +80,10 @@ app.get('/signup', (req, res) => {
 });
 
 // // Write form data to database
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
     const name = req.body.name;
     const email = req.body.email;
-    const password = req.body.password;
+    let password = req.body.password;
 
     const nameValidationResult = nameSchema.validate(name);
     const emailValidationResult = emailSchema.validate(email);
@@ -97,12 +99,13 @@ app.post('/signup', (req, res) => {
         req.session.INVALID_FIELD = 'Password'
         res.redirect('/invalidFormData')
     } else {
+        password = await bcrypt.hash(req.body.password, saltRounds);
+        console.log(password)
         const newUser = new User({
             name,
             email,
             password
         })
-
         newUser.save().then(res.redirect('/'))
     }
 });
@@ -139,7 +142,7 @@ app.post(('/login'), (req, res) => {
     const emailValidationResult = emailSchema.validate(email);
     const passwordValidationResult = passwordSchema.validate(password);
 
-    User.find(({ email: email, password: password })).exec().then((users) => {
+    User.find(({ email: email })).exec().then(async (users) => {
 
         if (emailValidationResult.error != null) {
             req.session.INVALID_FIELD = 'Email'
@@ -148,14 +151,18 @@ app.post(('/login'), (req, res) => {
             req.session.INVALID_FIELD = 'Password'
             res.redirect('/invalidFormData')
         } else {
-
             if (users.length === 0) {
                 console.log("Unauth")
                 req.session.AUTH = false;
             } else {
-                console.log("Auth")
-                req.session.AUTH = true;
-                req.session.USERNAME = users[0].name;
+                if (await bcrypt.compare(password, users[0].password)) {
+                    console.log("Auth")
+                    req.session.AUTH = true;
+                    req.session.USERNAME = users[0].name;
+                } else {
+                    console.log("Unauth")
+                    req.session.AUTH = false;
+                }
             }
             res.redirect('/authRoute');
         }

@@ -195,10 +195,21 @@ app.get('/authRoute', checkAuth, (req, res) => {
     `)
 });
 
+// Sign out resets auth
 app.post('/signOut', (req, res) => {
-    req.session.AUTH = false;
-    res.redirect('./')
+    req.session.destroy();
+    res.redirect('./');
 })
+
+// Page not found
+app.get('*', (req, res) => {
+    res.status(404);
+    res.send(`
+    Error 404 - that page does not exist.<br>
+    <a href="/">Home</a>
+    `);
+})
+
 
 // Start server
 app.listen((5000), () => {

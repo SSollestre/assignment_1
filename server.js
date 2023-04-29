@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 require('dotenv').config();
 
@@ -19,11 +20,10 @@ mongoose.connection.once('open', () => {
     console.log("Connected to MongoDB Atlas.")
 })
 
-
-app.listen((5000), () => {
-    console.log('Server is running on port 5000; http://localhost:5000');
-});
-
+// The '$ : {}' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
+const nameSchema = Joi.string().regex(/^[a-zA-Z]+$/).required();
+const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;:'",.<>/?~`-]+$/).required();
+const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;:'",.<>/?~`-]+$/).required();
 
 // Homepage
 app.get('/', (req, res) => {
@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
         console.log("Unauthorized Homepage");
         res.send(`
     <h3>Welcome!</h3>
-            <form action="./signup">
+            <form style="margin-bottom:2px" action="./signup">
             <input type="submit" value="Sign Up" />
         </form>
         <form action="./login">
@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
         console.log("Authorized Homepage");
         res.send(`
     <h3> Welcome, ${req.session.USERNAME}!</h3>
-        <form action="./authRoute">
+        <form margin-bottom:2px action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
     <form action="./signOut" method="post">
@@ -67,12 +67,15 @@ const User = mongoose.model('User', userSchema);
 app.get('/signup', (req, res) => {
     res.send(`
     <h3 style = "margin-bottom:2px">Sign Up</h3 >
-        <form action="/SignUp" method="post">
+        <form margin-bottom:2px action="/SignUp" method="post">
         <input type="text" id="name" name="name" placeholder="name"><br>
         <input type="text" id="email" name="email" placeholder="email"><br>
         <input type="text" id="password" name="password" placeholder="password"><br>
                     <input type="submit" id="submit" value="Sign Up">
                     </form>
+        <form margin-bottom:2px action="./">
+        <input type="submit" value="Home" />
+        </form>
                     `)
 });
 
@@ -82,13 +85,17 @@ app.post('/signup', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    if (name.length == 0) {
+    const nameValidationResult = nameSchema.validate(name);
+    const emailValidationResult = emailSchema.validate(email);
+    const passwordValidationResult = passwordSchema.validate(password);
+
+    if (nameValidationResult.error != null) {
         req.session.INVALID_FIELD = 'Name'
         res.redirect('/invalidFormData')
-    } else if (email.length == 0) {
+    } else if (emailValidationResult.error != null) {
         req.session.INVALID_FIELD = 'Email'
         res.redirect('/invalidFormData')
-    } else if (password.length == 0) {
+    } else if (passwordValidationResult.error != null) {
         req.session.INVALID_FIELD = 'Password'
         res.redirect('/invalidFormData')
     } else {
@@ -105,19 +112,24 @@ app.post('/signup', (req, res) => {
 // Invalid form data page
 app.get('/invalidFormData', (req, res) => {
     res.send(`
-    ${req.session.INVALID_FIELD} is required. <br><br>
+    ${req.session.INVALID_FIELD} is invalid. <br><br>
     <a href="${req.headers.referer}">Try again</a>.
     `)
 })
 
 // Log In Page
 app.get('/login', (req, res) => {
-    res.send(`<h3 style="margin-bottom:2px">Login</h3>
-<form action="/login" method="post">
+    res.send(`
+    <h3 style="margin-bottom:2px">Login</h3>
+<form margin-bottom:2px action="/login" method="post">
     <input type="text" id="email" name="email" placeholder="email"><br>
     <input type="text" id="password" name="password" placeholder="password"><br>
     <input type="submit" id="submit" value="Log In">
-</form>`)
+</form>
+        <form margin-bottom:2px action="./">
+        <input type="submit" value="Home" />
+        </form>
+`)
 })
 
 
@@ -126,12 +138,15 @@ app.post(('/login'), (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    const emailValidationResult = emailSchema.validate(email);
+    const passwordValidationResult = passwordSchema.validate(password);
+
     User.find(({ email: email, password: password })).exec().then((users) => {
 
-        if (email.length == 0) {
+        if (emailValidationResult.error != null) {
             req.session.INVALID_FIELD = 'Email'
             res.redirect('/invalidFormData')
-        } else if (password.length == 0) {
+        } else if (passwordValidationResult.error != null) {
             req.session.INVALID_FIELD = 'Password'
             res.redirect('/invalidFormData')
         } else {
@@ -161,10 +176,9 @@ const checkAuth = (req, res, next) => {
 
 // On failed authentication
 app.get('/authFail', (req, res) => {
-    res.send(`Invalid username / password <br>
-        <form action="./">
-            <input type="submit" value="home" />
-        </form>`)
+    res.send(`No match found <br>
+     <a href="${req.headers.referer}">Try again</a>.   
+    `)
 })
 
 // Auth route only allowed for authenticated users
@@ -173,10 +187,10 @@ app.get('/authRoute', checkAuth, (req, res) => {
     res.send(`
                     <img src="/images/a1img${imageNumber}.png">
                         <h3> Authenticated user </h3>
-                        <form action="./">
+                        <form margin-bottom:2px action="./">
                             <input type="submit" value="Home" />
                         </form>
-                        <form action="./signOut" method="post">
+                        <form margin-bottom:2px action="./signOut" method="post">
                             <input type="submit" value="Sign Out" />
                         </form>
                         `)
@@ -186,3 +200,8 @@ app.post('/signOut', (req, res) => {
     req.session.AUTH = false;
     res.redirect('./')
 })
+
+// Start server
+app.listen((5000), () => {
+    console.log('Server is running on port 5000; http://localhost:5000');
+});

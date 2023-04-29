@@ -66,7 +66,7 @@ const User = mongoose.model('User', userSchema);
 // Sign Up Page
 app.get('/signup', (req, res) => {
     res.send(`
-    <h3 style = "margin-bottom:2px"> Login</h3 >
+    <h3 style = "margin-bottom:2px">Sign Up</h3 >
         <form action="/SignUp" method="post">
         <input type="text" id="name" name="name" placeholder="name"><br>
         <input type="text" id="email" name="email" placeholder="email"><br>
@@ -82,14 +82,33 @@ app.post('/signup', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const newUser = new User({
-        name,
-        email,
-        password
-    })
+    if (name.length == 0) {
+        req.session.INVALID_FIELD = 'Name'
+        res.redirect('/invalidFormData')
+    } else if (email.length == 0) {
+        req.session.INVALID_FIELD = 'Email'
+        res.redirect('/invalidFormData')
+    } else if (password.length == 0) {
+        req.session.INVALID_FIELD = 'Password'
+        res.redirect('/invalidFormData')
+    } else {
+        const newUser = new User({
+            name,
+            email,
+            password
+        })
 
-    newUser.save().then(res.redirect('/'))
+        newUser.save().then(res.redirect('/'))
+    }
 });
+
+// Invalid form data page
+app.get('/invalidFormData', (req, res) => {
+    res.send(`
+    ${req.session.INVALID_FIELD} is required. <br><br>
+    <a href="${req.headers.referer}">Try again</a>.
+    `)
+})
 
 // Log In Page
 app.get('/login', (req, res) => {
@@ -104,20 +123,33 @@ app.get('/login', (req, res) => {
 
 // // Find Matching User
 app.post(('/login'), (req, res) => {
-    User.find(({ email: req.body.email, password: req.body.password })).exec().then((users) => {
+    const email = req.body.email;
+    const password = req.body.password;
 
-        if (users.length === 0) {
-            console.log("Unauth")
-            req.session.AUTH = false;
+    User.find(({ email: email, password: password })).exec().then((users) => {
+
+        if (email.length == 0) {
+            req.session.INVALID_FIELD = 'Email'
+            res.redirect('/invalidFormData')
+        } else if (password.length == 0) {
+            req.session.INVALID_FIELD = 'Password'
+            res.redirect('/invalidFormData')
         } else {
-            console.log("Auth")
-            req.session.AUTH = true;
-            req.session.USERNAME = users[0].name;
-        }
-        res.redirect('/authRoute');
-    })
 
+            if (users.length === 0) {
+                console.log("Unauth")
+                req.session.AUTH = false;
+            } else {
+                console.log("Auth")
+                req.session.AUTH = true;
+                req.session.USERNAME = users[0].name;
+            }
+            res.redirect('/authRoute');
+        }
+    })
 });
+
+
 
 // Checks if the user is authenticated.
 const checkAuth = (req, res, next) => {

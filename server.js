@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
     } else {
         console.log("Authorized Homepage");
         res.send(`
-    <h3> Welcome, user!</h3>
+    <h3> Welcome, ${req.session.USERNAME}!</h3>
         <form action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
@@ -58,7 +58,8 @@ app.get('/', (req, res) => {
 
 // User Model
 const userSchema = new Schema({
-    username: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
     password: { type: String, required: true }
 });
 
@@ -66,21 +67,26 @@ const User = mongoose.model('User', userSchema);
 
 // Sign Up Page
 app.get('/signup', (req, res) => {
-    res.send(`< h3 style = "margin-bottom:2px" > Login</h3 >
+    res.send(`
+    <h3 style = "margin-bottom:2px"> Login</h3 >
         <form action="/SignUp" method="post">
-            <input type="text" id="username" name="username" placeholder="username"><br>
-                <input type="text" id="password" name="password" placeholder="password"><br>
+        <input type="text" id="name" name="name" placeholder="name"><br>
+        <input type="text" id="email" name="email" placeholder="email"><br>
+        <input type="text" id="password" name="password" placeholder="password"><br>
                     <input type="submit" id="submit" value="Sign Up">
-                    </form>`)
+                    </form>
+                    `)
 });
 
 // // Write form data to database
 app.post('/signup', (req, res) => {
-    const username = req.body.username;
+    const name = req.body.name;
+    const email = req.body.email;
     const password = req.body.password;
 
     const newUser = new User({
-        username,
+        name,
+        email,
         password
     })
 
@@ -91,7 +97,7 @@ app.post('/signup', (req, res) => {
 app.get('/login', (req, res) => {
     res.send(`<h3 style="margin-bottom:2px">Login</h3>
 <form action="/login" method="post">
-    <input type="text" id="username" name="username" placeholder="username"><br>
+    <input type="text" id="email" name="email" placeholder="email"><br>
     <input type="text" id="password" name="password" placeholder="password"><br>
     <input type="submit" id="submit" value="Log In">
 </form>`)
@@ -100,12 +106,15 @@ app.get('/login', (req, res) => {
 
 // // Find Matching User
 app.post(('/login'), (req, res) => {
-    User.find(({ username: req.body.username, password: req.body.password })).exec().then((users) => {
+    User.find(({ email: req.body.email, password: req.body.password })).exec().then((users) => {
 
         if (users.length === 0) {
+            console.log("Unauth")
             req.session.AUTH = false;
         } else {
+            console.log("Auth")
             req.session.AUTH = true;
+            req.session.USERNAME = users[0].name;
         }
         res.redirect('/authRoute');
     })

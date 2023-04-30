@@ -34,7 +34,7 @@ app.use(session({
     store: sessionStore,
     saveUninitialized: false,
     resave: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+    cookie: { maxAge: 60 * 60 * 1000 }
 }))
 
 // The '$ : {}' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}

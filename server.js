@@ -225,25 +225,33 @@ app.get('/members', checkAuth, (req, res) => {
     <form style="margin-bottom:2px" margin-bottom:2px action="./">
         <input type="submit" value="Home" />
     </form>
-    <form style="margin-bottom:2px" margin-bottom:2px action="./logOut" method="post">
-        <input type="submit" value="Sign Out" />
+    <form style="margin-bottom:2px" margin-bottom:2px action="./logOut" method="get">
+        <input type="submit" value="Log Out" />
     </form>
     `)
 });
 
 // Log out destroys session
-app.post('/logOut', (req, res) => {
+app.get('/logOut', (req, res) => {
     req.session.destroy();
     res.redirect('./');
 })
 
-// Page not found
-app.get('*', (req, res) => {
+
+// 404 Page
+app.get('/does_not_exist', (req, res) => {
+    console.log("Not found")
     res.status(404);
     res.send(`
     Error 404 - that page does not exist.<br>
     <a href="/">Home</a>
     `);
+})
+
+
+// Page not found
+app.get('*', (req, res) => {
+    res.redirect('/does_not_exist')
 })
 
 

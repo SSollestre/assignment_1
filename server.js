@@ -53,6 +53,9 @@ app.get('/', (req, res) => {
         <form style="margin-bottom:2px" action="./login">
             <input type="submit" value="Log In" />
         </form>
+        <form style="margin-bottom:2px" action="./fakeRoute">
+            <input type="submit" value="Unknown Page" />
+        </form>
 `)
     } else {
         res.send(`
@@ -234,6 +237,7 @@ app.get('*', (req, res) => {
 
 
 // Start server
-app.listen((8080), () => {
-    console.log('Server is running on port 8080');
+const port = 8080;
+app.listen((port), () => {
+    console.log(`Server is running on port ${port}; http://localhost:${port}`);
 });

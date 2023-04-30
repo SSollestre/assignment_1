@@ -44,6 +44,7 @@ const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;'",.<>/
 
 // Homepage
 app.get('/', (req, res) => {
+    const fakeRouteNumber = Math.floor(Math.random() * 10) + 1;
     if (!req.session.AUTH) {
         res.send(`
     <h3 style="margin-bottom:2px">Welcome!</h3>
@@ -53,7 +54,7 @@ app.get('/', (req, res) => {
         <form style="margin-bottom:2px" action="./login">
             <input type="submit" value="Log In" />
         </form>
-        <form style="margin-bottom:2px" action="./fakeRoute">
+        <form style="margin-bottom:2px" action="./fakeRoute${fakeRouteNumber}">
             <input type="submit" value="Unknown Page" />
         </form>
 `)

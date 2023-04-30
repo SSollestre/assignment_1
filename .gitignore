@@ -1,6 +1,4 @@
 .git
 node_modules/
-design.html
-todo.txt
 .env
 package-lock.json

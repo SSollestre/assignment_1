@@ -39,8 +39,8 @@ app.use(session({
 
 // The '$ : {}' characters is used to get information from mongoDB, so it is not allowed. e.g. username: {$exists: true}}
 const nameSchema = Joi.string().regex(/^[a-zA-Z]+$/).required();
-const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;:'",.<>/?~`-]+$/).required();
-const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;:'",.<>/?~`-]+$/).required();
+const emailSchema = Joi.string().email({ minDomainSegments: 2 }).regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;'",.<>/?~`-]+$/).required();
+const passwordSchema = Joi.string().regex(/^[a-zA-Z0-9!@#%^&*()_+=[\]\\|;'",.<>/?~`-]+$/).required();
 
 // Homepage
 app.get('/', (req, res) => {

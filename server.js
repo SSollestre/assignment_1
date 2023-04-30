@@ -47,9 +47,8 @@ app.get('/', (req, res) => {
     const fakeRouteNumber = Math.floor(Math.random() * 10) + 1;
     if (!req.session.AUTH) {
         res.send(`
-    <h3 style="margin-bottom:2px">Welcome!</h3>
-            <form style="margin-bottom:2px" action="./signup">
-            <input type="submit" value="Sign Up" />
+        <form style="margin-bottom:2px" action="./signup">
+        <input type="submit" value="Sign Up" />
         </form>
         <form style="margin-bottom:2px" action="./login">
             <input type="submit" value="Log In" />
@@ -60,12 +59,12 @@ app.get('/', (req, res) => {
 `)
     } else {
         res.send(`
-    <h3 style="margin-bottom:2px"> Welcome, ${req.session.USERNAME}!</h3>
+    <h3 style="margin-bottom:2px"> Hello, ${req.session.USERNAME}!</h3>
         <form style="margin-bottom:2px" action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
-    <form style="margin-bottom:2px" action="./signOut" method="post">
-        <input type="submit" value="Sign Out" />
+    <form style="margin-bottom:2px" action="./logOut" method="post">
+        <input type="submit" value="Log Out" />
     </form>
     `)
     }
@@ -125,7 +124,11 @@ app.post('/signup', async (req, res) => {
             email,
             password
         })
-        newUser.save().then(res.redirect('/'))
+        newUser.save().then(() => {
+            req.session.AUTH = true;
+            req.session.USERNAME = req.body.name;
+            res.redirect('/members')
+        })
     }
 });
 
@@ -183,7 +186,7 @@ app.post(('/login'), (req, res) => {
                     req.session.AUTH = false;
                 }
             }
-            res.redirect('/authRoute');
+            res.redirect('/members');
         }
     })
 });
@@ -206,7 +209,7 @@ app.get('/authFail', (req, res) => {
 })
 
 // Auth route only allowed for authenticated users
-app.get('/authRoute', checkAuth, (req, res) => {
+app.get('/members', checkAuth, (req, res) => {
     const imageNumber = Math.floor(Math.random() * 3) + 1;
     res.send(`
     <h3 style="margin-bottom:2px"> Hello, ${req.session.USERNAME}!</h3>
@@ -221,8 +224,8 @@ app.get('/authRoute', checkAuth, (req, res) => {
     `)
 });
 
-// Sign out resets auth
-app.post('/signOut', (req, res) => {
+// Log out destroys session
+app.post('/logOut', (req, res) => {
     req.session.destroy();
     res.redirect('./');
 })

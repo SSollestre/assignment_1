@@ -176,6 +176,7 @@ app.post(('/login'), (req, res) => {
             if (users.length === 0) {
                 console.log("Unauth")
                 req.session.AUTH = false;
+                req.session.failForm = true;
             } else {
                 if (await bcrypt.compare(password, users[0].password)) {
                     console.log("Auth")
@@ -184,6 +185,7 @@ app.post(('/login'), (req, res) => {
                 } else {
                     console.log("Unauth")
                     req.session.AUTH = false;
+                    req.session.failForm = true;
                 }
             }
             res.redirect('/members');
@@ -192,11 +194,16 @@ app.post(('/login'), (req, res) => {
 });
 
 
-
 // Checks if the user is authenticated.
 const checkAuth = (req, res, next) => {
     if (!req.session.AUTH) {
-        return res.redirect('/authFail');
+        if (req.session.failForm) {
+            delete req.session.failForm
+            return res.redirect('/authFail');
+        } else {
+            delete req.session.failForm
+            return res.redirect('/');
+        }
     }
     next();
 };
@@ -218,7 +225,7 @@ app.get('/members', checkAuth, (req, res) => {
     <form style="margin-bottom:2px" margin-bottom:2px action="./">
         <input type="submit" value="Home" />
     </form>
-    <form style="margin-bottom:2px" margin-bottom:2px action="./signOut" method="post">
+    <form style="margin-bottom:2px" margin-bottom:2px action="./logOut" method="post">
         <input type="submit" value="Sign Out" />
     </form>
     `)

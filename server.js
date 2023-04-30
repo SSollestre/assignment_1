@@ -11,7 +11,6 @@ require('dotenv').config();
 const app = express();
 const Schema = mongoose.Schema;
 
-
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
 app.use(express.static(`public`));
@@ -29,6 +28,7 @@ var sessionStore = MongoStore.create({
         secret: process.env.SESSION_KEY
     }
 })
+
 app.use(session({
     secret: process.env.SESSION_KEY,
     store: sessionStore,
@@ -63,7 +63,7 @@ app.get('/', (req, res) => {
         <form style="margin-bottom:2px" action="./authRoute">
         <input type="submit" value="Members Area" />
         </form>
-    <form style="margin-bottom:2px" action="./logOut" method="post">
+    <form style="margin-bottom:2px" action="./logOut" method="getS">
         <input type="submit" value="Log Out" />
     </form>
     `)
@@ -96,6 +96,7 @@ app.get('/signup', (req, res) => {
         </form>
                     `)
 });
+
 
 // // Write form data to database
 app.post('/signup', async (req, res) => {
@@ -132,6 +133,7 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+
 // Invalid form data page
 app.get('/invalidFormData', (req, res) => {
     res.send(`
@@ -139,6 +141,7 @@ app.get('/invalidFormData', (req, res) => {
     <a href="${req.headers.referer}">Try again</a>.
     `)
 })
+
 
 // Log In Page
 app.get('/login', (req, res) => {
@@ -156,7 +159,7 @@ app.get('/login', (req, res) => {
 })
 
 
-// // Find Matching User
+// Find Matching User login
 app.post(('/login'), (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -208,12 +211,14 @@ const checkAuth = (req, res, next) => {
     next();
 };
 
+
 // On failed authentication
 app.get('/authFail', (req, res) => {
     res.send(`No match found <br>
      <a href="${req.headers.referer}">Try again</a>.   
     `)
 })
+
 
 // Auth route only allowed for authenticated users
 app.get('/members', checkAuth, (req, res) => {
@@ -230,6 +235,7 @@ app.get('/members', checkAuth, (req, res) => {
     </form>
     `)
 });
+
 
 // Log out destroys session
 app.get('/logOut', (req, res) => {

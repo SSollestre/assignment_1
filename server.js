@@ -88,7 +88,7 @@ app.get('/signup', (req, res) => {
         <form style="margin-bottom:2px" action="/signup" method="post">
         <input type="text" id="name" name="name" placeholder="name"><br>
         <input type="text" id="email" name="email" placeholder="email"><br>
-        <input style="margin-bottom:2px" type="text" id="password" name="password" placeholder="password"><br>
+        <input style="margin-bottom:2px" type="password" id="password" name="password" placeholder="password"><br>
                     <input type="submit" id="submit" value="Sign Up">
                     </form>
         <form style="margin-bottom:2px" action="./">
@@ -149,7 +149,7 @@ app.get('/login', (req, res) => {
     <h3 style="margin-bottom:2px">Log In</h3>
 <form style="margin-bottom:2px" action="/login" method="post">
     <input type="text" id="email" name="email" placeholder="email"><br>
-    <input style="margin-bottom:2px" type="text" id="password" name="password" placeholder="password"><br>
+    <input style="margin-bottom:2px" type="password" id="password" name="password" placeholder="password"><br>
     <input type="submit" id="submit" value="Log In">
 </form>
         <form style="margin-bottom:2px" action="./">

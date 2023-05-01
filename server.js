@@ -60,7 +60,7 @@ app.get('/', (req, res) => {
     } else {
         res.send(`
     <h3 style="margin-bottom:2px"> Hello, ${req.session.USERNAME}!</h3>
-        <form style="margin-bottom:2px" action="./authRoute">
+        <form style="margin-bottom:2px" action="./members">
         <input type="submit" value="Members Area" />
         </form>
     <form style="margin-bottom:2px" action="./logOut" method="getS">
